@@ -211,12 +211,12 @@ Ubuntu 22.04의 glibc 버전이 제공 앱 요구사항보다 낮을 수 있다.
 
 ### 5. 해결 방법
 
-Ubuntu 24.04 OrbStack Machine에서 다시 검증한다.
+Ubuntu 24.04 OrbStack Machine에서 먼저 다시 검증한다. 이미 Ubuntu 25.04 Machine이 준비되어 있다면 보조 호환성 확인에 사용할 수 있다.
 
 ### 6. 해결 결과
 
 - Before: glibc 버전 오류
-- After: Ubuntu 24.04에서 앱 실행 성공 여부 확인
+- After: Ubuntu 24.04에서 앱 실행 성공 여부 확인, 필요 시 Ubuntu 25.04에서 보조 확인
 
 ### 7. 재발 방지
 

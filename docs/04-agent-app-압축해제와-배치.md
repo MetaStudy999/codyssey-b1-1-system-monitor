@@ -10,10 +10,37 @@
 
 ## 사전 확인
 
-macOS 프로젝트 폴더에서 ZIP 내부 목록을 먼저 확인한다.
+이 단계는 `docs/02-계정-그룹-생성.md`와 `docs/03-디렉토리-권한-설정.md`를 완료한 뒤 진행한다. `agent-admin` 계정, `agent-core` 그룹, `/home/agent-admin/agent-app` 디렉터리가 먼저 있어야 앱 파일의 소유자와 권한을 올바르게 설정할 수 있다.
+
+이미 OrbStack Ubuntu VM 안에 들어와 있다면 접속 명령은 다시 실행하지 않는다. VM 터미널에서 프로젝트 폴더로 이동한 뒤 ZIP 파일이 있는지 확인한다.
+
+```bash
+cd /mnt/mac/Users/metastudy9997479/codyssey/codyssey-b1-1-system-monitor
+ls -l agent-app.zip
+```
+
+위 경로가 없다면 다음 경로도 확인한다.
+
+```bash
+cd /Users/metastudy9997479/codyssey/codyssey-b1-1-system-monitor
+ls -l agent-app.zip
+```
+
+ZIP 내부 목록을 먼저 확인한다.
 
 ```bash
 unzip -l agent-app.zip
+
+Archive:  agent-app.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+  6498144  05-20-2026 11:11   agent-app-linux-x86
+      354  05-20-2026 11:11   __MACOSX/._agent-app-linux-x86
+  7537848  05-18-2026 17:06   agent-app-linux-arm64
+      219  05-18-2026 17:06   __MACOSX/._agent-app-linux-arm64
+---------                     -------
+ 14036565                     4 files
+
 ```
 
 확인된 파일:
@@ -29,6 +56,14 @@ Ubuntu에서 아키텍처를 확인한다.
 
 ```bash
 uname -m
+```
+
+계정, 그룹, 앱 홈 디렉터리가 준비되었는지 확인한다.
+
+```bash
+id agent-admin
+getent group agent-core
+ls -ld /home/agent-admin/agent-app
 ```
 
 ## 실행 명령어

@@ -17,7 +17,7 @@ ip addr
 기대 결과:
 
 ```text
-Ubuntu 22.04 또는 Ubuntu 24.04
+Ubuntu 22.04, Ubuntu 24.04 또는 Ubuntu 25.04
 현재 사용자와 네트워크 정보 확인 가능
 ```
 

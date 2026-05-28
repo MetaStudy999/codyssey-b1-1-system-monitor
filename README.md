@@ -27,22 +27,22 @@
 | 구분 | 사용 환경 |
 |---|---|
 | Host OS | macOS |
-| Linux 실습 | OrbStack Ubuntu 22.04 LTS 우선, 필요 시 Ubuntu 24.04 |
+| Linux 실습 | OrbStack Ubuntu 22.04 LTS 우선, 필요 시 Ubuntu 24.04 LTS, Ubuntu 25.04 보조 검증(EOL 주의) |
 | Container Runtime | Docker, 필요 시 보조 |
 | Version Control | Git / GitHub |
 | Editor | VS Code |
 | Shell Script | Bash |
 
-Ubuntu 22.04에서 제공 앱 실행 중 `GLIBC_2.38 not found`가 발생하면 Ubuntu 24.04에서 다시 검증한다.
+Ubuntu 22.04에서 제공 앱 실행 중 `GLIBC_2.38 not found`가 발생하면 Ubuntu 24.04에서 먼저 다시 검증한다. 이미 Ubuntu 25.04 VM이 준비되어 있다면 보조 호환성 확인에 사용할 수 있지만, 기본 제출 환경은 LTS인 22.04 또는 24.04를 우선한다.
 
 ## 4. 전체 수행 순서
 
 자세한 단계별 안내는 `docs/00-목차.md`부터 순서대로 진행한다.
 
 1. `docs/01-환경준비.md`
-2. `docs/02-agent-app-압축해제와-배치.md`
-3. `docs/03-계정-그룹-생성.md`
-4. `docs/04-디렉토리-권한-설정.md`
+2. `docs/02-계정-그룹-생성.md`
+3. `docs/03-디렉토리-권한-설정.md`
+4. `docs/04-agent-app-압축해제와-배치.md`
 5. `docs/05-SSH-방화벽-설정.md`
 6. `docs/06-환경변수-키파일-설정.md`
 7. `docs/07-agent-app-실행-검증.md`
@@ -94,9 +94,9 @@ Ubuntu 22.04에서 제공 앱 실행 중 `GLIBC_2.38 not found`가 발생하면 
 └── docs/
     ├── 00-목차.md
     ├── 01-환경준비.md
-    ├── 02-agent-app-압축해제와-배치.md
-    ├── 03-계정-그룹-생성.md
-    ├── 04-디렉토리-권한-설정.md
+    ├── 02-계정-그룹-생성.md
+    ├── 03-디렉토리-권한-설정.md
+    ├── 04-agent-app-압축해제와-배치.md
     ├── 05-SSH-방화벽-설정.md
     ├── 06-환경변수-키파일-설정.md
     ├── 07-agent-app-실행-검증.md
@@ -132,14 +132,14 @@ cat /etc/os-release
 uname -m
 whoami
 id
-command -v unzip ss ufw logrotate crontab getfacl
+command -v unzip ss sshd ufw logrotate crontab getfacl curl file nano
 ```
 
 필요 시 Ubuntu에서 패키지를 설치한다.
 
 ```bash
 sudo apt update
-sudo apt install -y unzip iproute2 ufw logrotate cron acl
+sudo apt install -y openssh-server unzip iproute2 ufw logrotate cron acl curl file nano
 ```
 
 ## 8. agent-app.zip 압축 해제와 배치
@@ -579,7 +579,7 @@ git status
 | 15034 포트 없음 | `ss -tulnp \| grep 15034` | 앱 Boot Sequence 확인 |
 | cron 실패 | `tail /var/log/agent-app/cron.log` | 절대 경로, 권한, 환경 변수 확인 |
 | monitor.log 권한 오류 | `ls -ld /var/log/agent-app` | `agent-core` 그룹 쓰기 권한 확인 |
-| GLIBC 오류 | `ldd --version` | Ubuntu 24.04 검토 |
+| GLIBC 오류 | `ldd --version` | Ubuntu 24.04 우선 검토, 필요 시 Ubuntu 25.04 보조 확인 |
 
 ## 28. 동료 평가 대비 질문답변
 

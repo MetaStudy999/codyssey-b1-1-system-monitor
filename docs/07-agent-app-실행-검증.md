@@ -75,7 +75,7 @@ Boot Sequence 출력, `Agent READY`, `ss`, `curl` 결과를 붙인다.
 
 - `Running as root is forbidden`: `agent-admin` 계정으로 실행한다.
 - `Port 15034 is not available`: 이미 같은 포트를 쓰는 프로세스를 확인한다.
-- `GLIBC_2.38 not found`: Ubuntu 22.04에서 발생하면 Ubuntu 24.04 사용을 검토한다.
+- `GLIBC_2.38 not found`: Ubuntu 22.04에서 발생하면 Ubuntu 24.04를 먼저 검토하고, 이미 Ubuntu 25.04 VM이 있다면 보조로 확인한다.
 
 ## 다음 단계로 넘어가는 기준
 
