@@ -15,14 +15,14 @@
 이미 OrbStack Ubuntu VM 안에 들어와 있다면 접속 명령은 다시 실행하지 않는다. VM 터미널에서 프로젝트 폴더로 이동한 뒤 ZIP 파일이 있는지 확인한다.
 
 ```bash
-cd /mnt/mac/Users/metastudy9997479/codyssey/codyssey-b1-1-system-monitor
+cd /mnt/mac/Users/metastudy999/codyssey/codyssey-b1-1-system-monitor
 ls -l agent-app.zip
 ```
 
 위 경로가 없다면 다음 경로도 확인한다.
 
 ```bash
-cd /Users/metastudy9997479/codyssey/codyssey-b1-1-system-monitor
+cd /Users/metastudy999/codyssey/codyssey-b1-1-system-monitor
 ls -l agent-app.zip
 ```
 
