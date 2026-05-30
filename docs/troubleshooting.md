@@ -195,7 +195,7 @@ GLIBC_2.38 not found
 
 ### 2. 원인 가설
 
-실행 파일이 Ubuntu 22.04의 glibc보다 최신 버전을 요구한다.
+실행 파일이 현재 Ubuntu 24.04 VM의 glibc와 맞지 않을 수 있다.
 
 ### 3. 확인 명령
 
@@ -207,16 +207,16 @@ file /home/agent-admin/agent-app/agent-app
 
 ### 4. 실제 원인
 
-Ubuntu 22.04의 glibc 버전이 제공 앱 요구사항보다 낮을 수 있다.
+`codyssey-b1-1-ubuntu24`의 glibc 버전 또는 앱 바이너리 아키텍처가 제공 앱 요구사항과 맞지 않을 수 있다.
 
 ### 5. 해결 방법
 
-Ubuntu 24.04 OrbStack Machine에서 먼저 다시 검증한다. 이미 Ubuntu 25.04 Machine이 준비되어 있다면 보조 호환성 확인에 사용할 수 있다.
+`codyssey-b1-1-ubuntu24`에서 `ldd --version`, `cat /etc/os-release`, `file /home/agent-admin/agent-app/agent-app`를 확인하고, 제공 앱이 Ubuntu 24.04용 바이너리인지 점검한다.
 
 ### 6. 해결 결과
 
 - Before: glibc 버전 오류
-- After: Ubuntu 24.04에서 앱 실행 성공 여부 확인, 필요 시 Ubuntu 25.04에서 보조 확인
+- After: Ubuntu 24.04 VM에서 앱 실행 성공 여부 확인
 
 ### 7. 재발 방지
 

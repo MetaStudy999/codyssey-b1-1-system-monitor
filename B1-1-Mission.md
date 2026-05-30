@@ -128,7 +128,7 @@ monitor.log를 분석해 CPU/MEM/DISK의 평균/최대/최소와 샘플 수를 �
 개발환경
 
 6. 개발 환경
-Ubuntu 22.04 LTS 또는 동등 리눅스 환경
+OrbStack VM `codyssey-b1-1-ubuntu24`의 Ubuntu 24.04 LTS 환경
 이전 미션에서 구성한 Linux 실습 환경(컨테이너/VM)을 그대로 사용 권장
 제약조건
 

@@ -6,7 +6,7 @@
 
 목표는 제공 앱을 안전한 Linux 운영 환경에 배치하고, SSH/방화벽/계정/권한/로그/cron/관제 스크립트를 초보자도 재현할 수 있게 문서화하는 것이다.
 
-주의: 이 저장소에서 작성한 스크립트 중 `sudo`가 필요한 항목은 OrbStack Ubuntu에서 직접 실행한다. macOS에서는 Git, 문서 편집, 정적 검증만 수행한다.
+주의: 이 저장소에서 작성한 스크립트 중 `sudo`가 필요한 항목은 OrbStack Ubuntu 24.04 VM `codyssey-b1-1-ubuntu24`에서 직접 실행한다. macOS에서는 Git, 문서 편집, 정적 검증만 수행한다.
 
 ## 2. 미션 목표
 
@@ -27,13 +27,13 @@
 | 구분 | 사용 환경 |
 |---|---|
 | Host OS | macOS |
-| Linux 실습 | OrbStack Ubuntu 22.04 LTS 우선, 필요 시 Ubuntu 24.04 LTS, Ubuntu 25.04 보조 검증(EOL 주의) |
+| Linux 실습 | OrbStack VM `codyssey-b1-1-ubuntu24` (Ubuntu 24.04 LTS, Noble) |
 | Container Runtime | Docker, 필요 시 보조 |
 | Version Control | Git / GitHub |
 | Editor | VS Code |
 | Shell Script | Bash |
 
-Ubuntu 22.04에서 제공 앱 실행 중 `GLIBC_2.38 not found`가 발생하면 Ubuntu 24.04에서 먼저 다시 검증한다. 이미 Ubuntu 25.04 VM이 준비되어 있다면 보조 호환성 확인에 사용할 수 있지만, 기본 제출 환경은 LTS인 22.04 또는 24.04를 우선한다.
+모든 Linux 실습 증빙은 `codyssey-b1-1-ubuntu24`에서 남긴다. 제공 앱 실행 중 `GLIBC_2.38 not found`가 발생하면 같은 VM에서 `ldd --version`, `cat /etc/os-release`, `file /home/agent-admin/agent-app/agent-app`로 앱 바이너리와 Ubuntu 24.04 호환성을 확인한다.
 
 ## 4. 전체 수행 순서
 
@@ -59,12 +59,12 @@ Ubuntu 22.04에서 제공 앱 실행 중 `GLIBC_2.38 not found`가 발생하면 
 
 | 미션 요구사항 | 구현 내용 | 검증 명령 | 결과 |
 |---|---|---|---|
-| SSH 포트 20022 | `/etc/ssh/sshd_config` 수정 안내 | `grep`, `ss` | Ubuntu 실행 후 갱신 |
-| Root 접속 차단 | `PermitRootLogin no` 설정 안내 | `grep` | Ubuntu 실행 후 갱신 |
+| SSH 포트 20022 | `/etc/ssh/sshd_config` 수정 안내 | `grep`, `ss` | `codyssey-b1-1-ubuntu24` 실행 후 갱신 |
+| Root 접속 차단 | `PermitRootLogin no` 설정 안내 | `grep` | `codyssey-b1-1-ubuntu24` 실행 후 갱신 |
 | 방화벽 포트 제한 | UFW 스크립트 제공 | `ufw status` | 준비 |
 | 계정/그룹 생성 | `scripts/setup-users.sh` | `id`, `getent` | 준비 |
 | 디렉터리 권한 | `scripts/setup-dirs.sh` | `ls -ld`, `getfacl` | 준비 |
-| 앱 실행 | `agent-admin` 실행 안내 | Boot Sequence, `ss`, `curl` | Ubuntu 실행 후 갱신 |
+| 앱 실행 | `agent-admin` 실행 안내 | Boot Sequence, `ss`, `curl` | `codyssey-b1-1-ubuntu24` 실행 후 갱신 |
 | monitor.sh 구현 | `bin/monitor.sh` | `bash -n`, 직접 실행 | 준비 |
 | 로그 누적 | `monitor.log` append | `tail`, `wc` | 준비 |
 | cron 등록 | `scripts/install-cron.sh` | `crontab`, `tail` | 준비 |
@@ -125,7 +125,7 @@ ls -la
 git status
 ```
 
-Ubuntu에서 확인한다.
+`codyssey-b1-1-ubuntu24`에서 확인한다.
 
 ```bash
 cat /etc/os-release
@@ -135,7 +135,7 @@ id
 command -v unzip ss sshd ufw logrotate crontab getfacl curl file nano
 ```
 
-필요 시 Ubuntu에서 패키지를 설치한다.
+필요 시 `codyssey-b1-1-ubuntu24`에서 패키지를 설치한다.
 
 ```bash
 sudo apt update
@@ -159,7 +159,7 @@ __MACOSX/._agent-app-linux-x86
 __MACOSX/._agent-app-linux-arm64
 ```
 
-Ubuntu 아키텍처에 맞는 파일을 선택한다.
+`codyssey-b1-1-ubuntu24`의 아키텍처에 맞는 파일을 선택한다.
 
 ```bash
 uname -m
@@ -235,7 +235,7 @@ api_keys: agent-core 그룹만 접근
 /var/log/agent-app: agent-core 그룹만 접근
 ```
 
-`/home/agent-admin` ACL은 홈 디렉터리 목록 읽기 권한이 아니라 `$AGENT_HOME` 하위 경로로 들어가기 위한 최소 탐색 권한이다. 일반 Ubuntu 계정에서 `ls -ld "$AGENT_HOME"`가 `Permission denied`를 출력하면 `sudo` 또는 `agent-admin` 컨텍스트로 증빙을 수집한다.
+`/home/agent-admin` ACL은 홈 디렉터리 목록 읽기 권한이 아니라 `$AGENT_HOME` 하위 경로로 들어가기 위한 최소 탐색 권한이다. `codyssey-b1-1-ubuntu24`의 일반 계정에서 `ls -ld "$AGENT_HOME"`가 `Permission denied`를 출력하면 `sudo` 또는 `agent-admin` 컨텍스트로 증빙을 수집한다.
 
 ## 11. SSH 20022 설정
 
@@ -386,7 +386,7 @@ Agent READY
 
 ## 18. 15034 LISTEN 확인
 
-다른 Ubuntu 터미널에서 확인한다.
+다른 `codyssey-b1-1-ubuntu24` 터미널에서 확인한다.
 
 ```bash
 ps -ef | grep '[a]gent-app'
@@ -584,7 +584,7 @@ git status
 | 15034 포트 없음 | `ss -tulnp \| grep 15034` | 앱 Boot Sequence 확인 |
 | cron 실패 | `tail /var/log/agent-app/cron.log` | 절대 경로, 권한, 환경 변수 확인 |
 | monitor.log 권한 오류 | `ls -ld /var/log/agent-app` | `agent-core` 그룹 쓰기 권한 확인 |
-| GLIBC 오류 | `ldd --version` | Ubuntu 24.04 우선 검토, 필요 시 Ubuntu 25.04 보조 확인 |
+| GLIBC 오류 | `ldd --version` | Ubuntu 24.04 VM에서 glibc와 바이너리 호환성 확인 |
 
 ## 28. 동료 평가 대비 질문답변
 
@@ -642,7 +642,7 @@ docs: align B1-1 evidence with evaluation checklist
 - 앱은 root로 실행하지 않는다.
 - SSH 변경 전 기존 터미널을 닫지 않는다.
 - UFW 활성화 전 `20022/tcp` 허용 여부를 확인한다.
-- `/var/log`와 `/etc` 변경은 Ubuntu에서만 실행한다.
+- `/var/log`와 `/etc` 변경은 `codyssey-b1-1-ubuntu24`에서만 실행한다.
 - macOS에서는 `useradd`, `ufw`, `systemctl`, `crontab` 실습을 직접 실행하지 않는다.
 
 ## 증빙 작성 위치

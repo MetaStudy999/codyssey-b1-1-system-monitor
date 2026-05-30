@@ -46,8 +46,7 @@ B1-1의 핵심은 단순 Bash 스크립트 작성이 아니다.
 - Host OS: macOS
 - VM / Container Tool: OrbStack
 - Linux Practice Environment:
-  - Ubuntu 22.04 LTS 우선
-  - 필요 시 Ubuntu 24.04 사용
+  - Ubuntu 24.04 LTS 우선
 - Container Runtime: Docker
 - Version Control: Git / GitHub
 - Editor: VS Code
@@ -67,9 +66,9 @@ Docker 컨테이너에서는 다음 기능이 제한될 수 있다.
 
 따라서 가능하면 다음 환경에서 실습한다.
 
-    OrbStack Ubuntu 22.04 Machine
+    OrbStack Ubuntu 24.04 Machine
 
-Ubuntu 22.04에서 제공 앱 실행 중 GLIBC 관련 오류가 발생하면 Ubuntu 24.04 환경을 검토한다.
+Ubuntu 24.04에서 제공 앱 실행 중 GLIBC 관련 오류가 발생하면 Ubuntu 25.04 환경을 검토한다.
 
 ---
 

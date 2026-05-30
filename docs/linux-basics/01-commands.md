@@ -330,7 +330,7 @@ sudo systemctl status ssh
 - `ctl`: `control`을 줄인 표현이다.
 - `ssh`: `Secure Shell`, 원격 접속에 사용하는 보안 셸 서비스다.
 
-OrbStack Ubuntu Machine에서는 사용할 수 있지만, Docker 컨테이너에서는 제한될 수 있다.
+`codyssey-b1-1-ubuntu24`에서는 사용할 수 있지만, Docker 컨테이너에서는 제한될 수 있다.
 
 ### `ufw`
 

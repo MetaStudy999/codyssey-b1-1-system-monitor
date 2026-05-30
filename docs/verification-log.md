@@ -1,6 +1,6 @@
 # Verification Log
 
-이 문서는 평가자가 실행할 검증 명령과 기대 결과를 모은 것이다. `sudo`가 필요한 명령은 OrbStack Ubuntu에서 직접 실행한다.
+이 문서는 평가자가 실행할 검증 명령과 기대 결과를 모은 것이다. `sudo`가 필요한 명령은 OrbStack Ubuntu 24.04 VM `codyssey-b1-1-ubuntu24`에서 직접 실행한다.
 
 ## 1. 시스템 환경 확인
 
@@ -17,7 +17,7 @@ ip addr
 기대 결과:
 
 ```text
-Ubuntu 22.04, Ubuntu 24.04 또는 Ubuntu 25.04
+Ubuntu 24.04 LTS, hostname: codyssey-b1-1-ubuntu24
 현재 사용자와 네트워크 정보 확인 가능
 ```
 

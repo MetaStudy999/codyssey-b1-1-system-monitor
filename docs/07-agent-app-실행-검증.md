@@ -11,7 +11,7 @@
 ## 사전 확인
 
 ```bash
-ls -l /home/agent-admin/agent-app/agent-app
+sudo ls -l /home/agent-admin/agent-app/agent-app
 sudo -iu agent-admin env | grep '^AGENT_'
 sudo -u agent-admin cat /home/agent-admin/agent-app/api_keys/t_secret.key
 ```
@@ -20,6 +20,8 @@ sudo -u agent-admin cat /home/agent-admin/agent-app/api_keys/t_secret.key
 
 ```bash
 sudo -iu agent-admin
+source ~/.profile
+env | grep '^AGENT_'
 cd "$AGENT_HOME"
 ./agent-app
 ```
@@ -74,8 +76,9 @@ Boot Sequence 출력, `Agent READY`, `ss`, `curl` 결과를 붙인다.
 ## 자주 발생하는 오류
 
 - `Running as root is forbidden`: `agent-admin` 계정으로 실행한다.
+- `Critical Env 'AGENT_HOME' is missing`: `agent-admin` 셸에서 환경 변수가 로드되지 않은 상태다. `source ~/.profile`을 실행하고 `env | grep '^AGENT_'`로 확인한 뒤 다시 실행한다.
 - `Port 15034 is not available`: 이미 같은 포트를 쓰는 프로세스를 확인한다.
-- `GLIBC_2.38 not found`: Ubuntu 22.04에서 발생하면 Ubuntu 24.04를 먼저 검토하고, 이미 Ubuntu 25.04 VM이 있다면 보조로 확인한다.
+- `GLIBC_2.38 not found`: `codyssey-b1-1-ubuntu24`에서 `ldd --version`, `cat /etc/os-release`, `file "$AGENT_HOME/agent-app"`로 glibc와 바이너리 호환성을 확인한다.
 
 ## 다음 단계로 넘어가는 기준
 

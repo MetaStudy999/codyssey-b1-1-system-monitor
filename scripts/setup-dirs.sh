@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Create the application directory tree, permission model, and test key.
-# Run this script on the OrbStack Ubuntu machine, not on macOS.
+# Run this script on the OrbStack Ubuntu 24.04 VM codyssey-b1-1-ubuntu24, not on macOS.
 
 set -u
 
@@ -27,7 +27,7 @@ error() {
 
 require_root() {
   if [ "$(id -u)" -ne 0 ]; then
-    error "This script must be run with sudo or as root on Ubuntu."
+    error "This script must be run with sudo or as root on codyssey-b1-1-ubuntu24."
     error "Example: sudo AGENT_HOME=$AGENT_HOME $0"
     exit 1
   fi

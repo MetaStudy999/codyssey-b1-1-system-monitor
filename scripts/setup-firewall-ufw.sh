@@ -2,6 +2,7 @@
 
 # Configure UFW for the B1-1 mission.
 # Only TCP 20022 for SSH and TCP 15034 for the agent app are allowed.
+# Run on the OrbStack Ubuntu 24.04 VM codyssey-b1-1-ubuntu24.
 
 set -u
 
@@ -32,7 +33,7 @@ USAGE
 
 require_root() {
   if [ "$(id -u)" -ne 0 ]; then
-    error "This script must be run with sudo or as root on Ubuntu."
+    error "This script must be run with sudo or as root on codyssey-b1-1-ubuntu24."
     exit 1
   fi
 }

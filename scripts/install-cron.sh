@@ -2,6 +2,7 @@
 
 # Register monitor.sh in agent-admin's crontab.
 # Duplicate entries are avoided by replacing the exact command if present.
+# Run on the OrbStack Ubuntu 24.04 VM codyssey-b1-1-ubuntu24.
 
 set -u
 
@@ -21,7 +22,7 @@ error() {
 
 require_root() {
   if [ "$(id -u)" -ne 0 ]; then
-    error "This script must be run with sudo or as root on Ubuntu."
+    error "This script must be run with sudo or as root on codyssey-b1-1-ubuntu24."
     exit 1
   fi
 }

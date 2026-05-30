@@ -2,7 +2,7 @@
 
 ## macOS와 Ubuntu 역할 분리
 
-B1-1에서는 macOS를 작업 호스트로 사용하고, Linux 실습은 OrbStack Ubuntu Machine에서 수행한다.
+B1-1에서는 macOS를 작업 호스트로 사용하고, Linux 실습은 OrbStack Ubuntu 24.04 VM `codyssey-b1-1-ubuntu24`에서 수행한다.
 
 - macOS: VS Code, Git, 문서 작성, 브라우저 검증
 - Ubuntu: 사용자/그룹, 권한, SSH, 방화벽, cron, 로그 실습

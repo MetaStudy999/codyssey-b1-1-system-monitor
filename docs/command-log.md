@@ -1,6 +1,6 @@
 # Command Log
 
-실제 수행한 명령과 결과를 기록하는 문서다. 아래 예시는 템플릿이며, Ubuntu 실습 후 실제 출력으로 교체한다.
+실제 수행한 명령과 결과를 기록하는 문서다. 아래 예시는 템플릿이며, `codyssey-b1-1-ubuntu24` 실습 후 실제 출력으로 교체한다.
 
 ## macOS 작업 폴더 확인
 
@@ -30,7 +30,7 @@ agent-app-linux-arm64
 __MACOSX 메타데이터 파일
 ```
 
-## Ubuntu 환경 확인
+## Ubuntu 24.04 환경 확인
 
 ```bash
 cat /etc/os-release
