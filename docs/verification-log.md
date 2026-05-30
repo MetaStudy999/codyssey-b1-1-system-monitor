@@ -72,19 +72,22 @@ agent-core: agent-admin, agent-dev
 
 ```bash
 export AGENT_HOME=/home/agent-admin/agent-app
-ls -ld "$AGENT_HOME"
-ls -ld "$AGENT_HOME/upload_files"
-ls -ld "$AGENT_HOME/api_keys"
-ls -ld "$AGENT_HOME/bin"
-ls -ld /var/log/agent-app
-getfacl "$AGENT_HOME/upload_files"
-getfacl "$AGENT_HOME/api_keys"
-getfacl /var/log/agent-app
+namei -l "$AGENT_HOME"
+sudo ls -ld "$AGENT_HOME"
+sudo ls -ld "$AGENT_HOME/upload_files"
+sudo ls -ld "$AGENT_HOME/api_keys"
+sudo ls -ld "$AGENT_HOME/bin"
+sudo ls -ld /var/log/agent-app
+sudo getfacl /home/agent-admin
+sudo getfacl "$AGENT_HOME/upload_files"
+sudo getfacl "$AGENT_HOME/api_keys"
+sudo getfacl /var/log/agent-app
 ```
 
 기대 결과:
 
 ```text
+/home/agent-admin ACL: group:agent-core:--x
 upload_files group: agent-common
 api_keys group: agent-core
 /var/log/agent-app group: agent-core

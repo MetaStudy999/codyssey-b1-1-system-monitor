@@ -69,11 +69,40 @@ write_key_file() {
   fi
 }
 
+ensure_agent_home_traversal() {
+  local admin_home
+
+  admin_home="$(getent passwd agent-admin | cut -d: -f6)"
+  if [ -z "$admin_home" ] || [ ! -d "$admin_home" ]; then
+    warning "Could not find agent-admin home directory. Skipping parent traversal ACL."
+    return
+  fi
+
+  case "$AGENT_HOME/" in
+    "$admin_home"/*)
+      if command -v setfacl >/dev/null 2>&1; then
+        if setfacl -m g:agent-core:--x "$admin_home"; then
+          info "Granted traverse-only ACL to agent-core on: $admin_home"
+        else
+          warning "Failed to set ACL on $admin_home. agent-core users may not be able to enter $AGENT_HOME."
+        fi
+      else
+        warning "setfacl is not installed. If $admin_home is not searchable, install acl or allow traversal manually."
+        warning "Example: sudo setfacl -m g:agent-core:--x $admin_home"
+      fi
+      ;;
+    *)
+      warning "AGENT_HOME is not under $admin_home. Check parent directory traversal permissions manually."
+      ;;
+  esac
+}
+
 main() {
   require_root
   require_accounts
 
   info "Creating application directories"
+  ensure_agent_home_traversal
   install -d -o agent-admin -g agent-core -m 0750 "$AGENT_HOME"
   install -d -o agent-admin -g agent-common -m 2770 "$UPLOAD_DIR"
   install -d -o agent-admin -g agent-core -m 2770 "$KEY_DIR"

@@ -214,23 +214,28 @@ sudo bash scripts/setup-dirs.sh
 
 ```bash
 export AGENT_HOME=/home/agent-admin/agent-app
-ls -ld "$AGENT_HOME"
-ls -ld "$AGENT_HOME/upload_files"
-ls -ld "$AGENT_HOME/api_keys"
-ls -ld "$AGENT_HOME/bin"
-ls -ld /var/log/agent-app
-getfacl "$AGENT_HOME/upload_files"
-getfacl "$AGENT_HOME/api_keys"
-getfacl /var/log/agent-app
+namei -l "$AGENT_HOME"
+sudo ls -ld "$AGENT_HOME"
+sudo ls -ld "$AGENT_HOME/upload_files"
+sudo ls -ld "$AGENT_HOME/api_keys"
+sudo ls -ld "$AGENT_HOME/bin"
+sudo ls -ld /var/log/agent-app
+sudo getfacl /home/agent-admin
+sudo getfacl "$AGENT_HOME/upload_files"
+sudo getfacl "$AGENT_HOME/api_keys"
+sudo getfacl /var/log/agent-app
 ```
 
 권한 정책:
 
 ```text
+/home/agent-admin: agent-core 그룹에 --x ACL 부여
 upload_files: agent-common 그룹 읽기/쓰기
 api_keys: agent-core 그룹만 접근
 /var/log/agent-app: agent-core 그룹만 접근
 ```
+
+`/home/agent-admin` ACL은 홈 디렉터리 목록 읽기 권한이 아니라 `$AGENT_HOME` 하위 경로로 들어가기 위한 최소 탐색 권한이다. 일반 Ubuntu 계정에서 `ls -ld "$AGENT_HOME"`가 `Permission denied`를 출력하면 `sudo` 또는 `agent-admin` 컨텍스트로 증빙을 수집한다.
 
 ## 11. SSH 20022 설정
 
