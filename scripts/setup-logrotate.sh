@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Install logrotate policy for /var/log/agent-app/monitor.log.
-# Run on the OrbStack Ubuntu 24.04 VM codyssey-b1-1-ubuntu24.
+# Run on the OrbStack Ubuntu 24.04 VM cds-ubuntu24.
 
 set -u
 
@@ -18,7 +18,7 @@ error() {
 
 require_root() {
   if [ "$(id -u)" -ne 0 ]; then
-    error "This script must be run with sudo or as root on codyssey-b1-1-ubuntu24."
+    error "This script must be run with sudo or as root on cds-ubuntu24."
     exit 1
   fi
 }
@@ -33,6 +33,7 @@ main() {
 
   cat >"$CONFIG_PATH" <<EOF
 $MONITOR_LOG {
+    su agent-admin agent-core
     size 10M
     rotate 10
     missingok

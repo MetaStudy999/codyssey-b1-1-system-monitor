@@ -1,6 +1,6 @@
 # Verification Log
 
-이 문서는 평가자가 실행할 검증 명령과 기대 결과를 모은 것이다. `sudo`가 필요한 명령은 OrbStack Ubuntu 24.04 VM `codyssey-b1-1-ubuntu24`에서 직접 실행한다.
+이 문서는 평가자가 실행할 검증 명령과 기대 결과를 모은 것이다. `sudo`가 필요한 명령은 OrbStack Ubuntu 24.04 VM `cds-ubuntu24`에서 직접 실행한다.
 
 ## 1. 시스템 환경 확인
 
@@ -17,7 +17,7 @@ ip addr
 기대 결과:
 
 ```text
-Ubuntu 24.04 LTS, hostname: codyssey-b1-1-ubuntu24
+Ubuntu 24.04 LTS, hostname: cds-ubuntu24
 현재 사용자와 네트워크 정보 확인 가능
 ```
 
@@ -97,6 +97,7 @@ api_keys group: agent-core
 
 ```bash
 sudo -iu agent-admin env | grep '^AGENT_'
+sudo -u agent-admin cat /home/agent-admin/agent-app/api_keys/secret.key
 sudo -u agent-admin cat /home/agent-admin/agent-app/api_keys/t_secret.key
 ```
 
@@ -105,6 +106,8 @@ sudo -u agent-admin cat /home/agent-admin/agent-app/api_keys/t_secret.key
 ```text
 AGENT_HOME=/home/agent-admin/agent-app
 AGENT_PORT=15034
+AGENT_KEY_PATH=/home/agent-admin/agent-app/api_keys
+agent_api_key_test
 agent_api_key_test
 ```
 
@@ -113,7 +116,7 @@ agent_api_key_test
 ```bash
 ps -ef | grep '[a]gent-app'
 ss -tulnp | grep 15034
-curl http://localhost:15034
+curl -v --max-time 3 http://localhost:15034
 ```
 
 기대 결과:
@@ -121,7 +124,7 @@ curl http://localhost:15034
 ```text
 Agent READY 출력 확인
 0.0.0.0:15034 LISTEN
-curl 응답 확인
+curl 출력에서 Connected to localhost 또는 Connected to 127.0.0.1 확인
 ```
 
 ## 8. monitor.sh 확인
@@ -130,7 +133,7 @@ curl 응답 확인
 export AGENT_HOME=/home/agent-admin/agent-app
 bash -n "$AGENT_HOME/bin/monitor.sh"
 sudo -u agent-admin "$AGENT_HOME/bin/monitor.sh"
-tail -n 5 /var/log/agent-app/monitor.log
+sudo tail -n 5 /var/log/agent-app/monitor.log
 ```
 
 기대 결과:
@@ -146,9 +149,9 @@ monitor.log에 지정 포맷 append
 
 ```bash
 sudo crontab -u agent-admin -l
-wc -l /var/log/agent-app/monitor.log
+sudo wc -l /var/log/agent-app/monitor.log
 sleep 70
-wc -l /var/log/agent-app/monitor.log
+sudo wc -l /var/log/agent-app/monitor.log
 tail -n 10 /var/log/agent-app/cron.log
 ```
 
@@ -171,6 +174,7 @@ sudo logrotate -d /etc/logrotate.d/agent-app-monitor
 ```text
 size 10M
 rotate 10
+su agent-admin agent-core
 missingok
 notifempty
 copytruncate

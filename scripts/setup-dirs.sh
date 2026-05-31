@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 
 # Create the application directory tree, permission model, and test key.
-# Run this script on the OrbStack Ubuntu 24.04 VM codyssey-b1-1-ubuntu24, not on macOS.
+# Run this script on the OrbStack Ubuntu 24.04 VM cds-ubuntu24, not on macOS.
 
 set -u
 
 AGENT_HOME="${AGENT_HOME:-/home/agent-admin/agent-app}"
 UPLOAD_DIR="${AGENT_UPLOAD_DIR:-$AGENT_HOME/upload_files}"
-KEY_DIR="$AGENT_HOME/api_keys"
+KEY_PATH_VALUE="${AGENT_KEY_PATH:-$AGENT_HOME/api_keys}"
+if [ "$(basename "$KEY_PATH_VALUE")" = "secret.key" ] || [ "$(basename "$KEY_PATH_VALUE")" = "t_secret.key" ]; then
+  KEY_DIR="$(dirname "$KEY_PATH_VALUE")"
+else
+  KEY_DIR="$KEY_PATH_VALUE"
+fi
+APP_KEY_FILE="$KEY_DIR/secret.key"
+MISSION_KEY_FILE="$KEY_DIR/t_secret.key"
 BIN_DIR="$AGENT_HOME/bin"
 LOG_DIR="${AGENT_LOG_DIR:-/var/log/agent-app}"
-KEY_FILE="${AGENT_KEY_PATH:-$KEY_DIR/t_secret.key}"
 TEST_KEY_VALUE="agent_api_key_test"
 
 info() {
@@ -27,7 +33,7 @@ error() {
 
 require_root() {
   if [ "$(id -u)" -ne 0 ]; then
-    error "This script must be run with sudo or as root on codyssey-b1-1-ubuntu24."
+    error "This script must be run with sudo or as root on cds-ubuntu24."
     error "Example: sudo AGENT_HOME=$AGENT_HOME $0"
     exit 1
   fi
@@ -56,17 +62,26 @@ require_accounts() {
 }
 
 write_key_file() {
-  if [ -f "$KEY_FILE" ]; then
-    if [ "$(cat "$KEY_FILE")" = "$TEST_KEY_VALUE" ]; then
-      info "Key file already exists with expected test value: $KEY_FILE"
+  local key_file="$1"
+
+  if [ -f "$key_file" ]; then
+    if [ "$(cat "$key_file")" = "$TEST_KEY_VALUE" ]; then
+      info "Key file already exists with expected test value: $key_file"
     else
-      warning "Key file exists but content differs: $KEY_FILE"
+      warning "Key file exists but content differs: $key_file"
       warning "Leaving existing file untouched. Check it manually."
     fi
   else
-    printf '%s\n' "$TEST_KEY_VALUE" >"$KEY_FILE"
-    info "Created test key file: $KEY_FILE"
+    printf '%s\n' "$TEST_KEY_VALUE" >"$key_file"
+    info "Created test key file: $key_file"
   fi
+}
+
+secure_key_file() {
+  local key_file="$1"
+
+  chown agent-admin:agent-core "$key_file"
+  chmod 0640 "$key_file"
 }
 
 ensure_agent_home_traversal() {
@@ -109,15 +124,17 @@ main() {
   install -d -o agent-dev -g agent-core -m 0750 "$BIN_DIR"
   install -d -o agent-admin -g agent-core -m 2770 "$LOG_DIR"
 
-  write_key_file
+  write_key_file "$APP_KEY_FILE"
+  write_key_file "$MISSION_KEY_FILE"
 
-  chown agent-admin:agent-core "$KEY_FILE"
-  chmod 0640 "$KEY_FILE"
+  secure_key_file "$APP_KEY_FILE"
+  secure_key_file "$MISSION_KEY_FILE"
 
   info "Directory setup completed"
   info "AGENT_HOME=$AGENT_HOME"
   info "UPLOAD_DIR=$UPLOAD_DIR"
-  info "KEY_FILE=$KEY_FILE"
+  info "APP_KEY_FILE=$APP_KEY_FILE"
+  info "MISSION_KEY_FILE=$MISSION_KEY_FILE"
   info "LOG_DIR=$LOG_DIR"
 }
 

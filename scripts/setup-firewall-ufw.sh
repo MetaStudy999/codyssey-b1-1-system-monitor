@@ -2,7 +2,7 @@
 
 # Configure UFW for the B1-1 mission.
 # Only TCP 20022 for SSH and TCP 15034 for the agent app are allowed.
-# Run on the OrbStack Ubuntu 24.04 VM codyssey-b1-1-ubuntu24.
+# Run on the OrbStack Ubuntu 24.04 VM cds-ubuntu24.
 
 set -u
 
@@ -33,7 +33,7 @@ USAGE
 
 require_root() {
   if [ "$(id -u)" -ne 0 ]; then
-    error "This script must be run with sudo or as root on codyssey-b1-1-ubuntu24."
+    error "This script must be run with sudo or as root on cds-ubuntu24."
     exit 1
   fi
 }
@@ -51,10 +51,12 @@ show_plan() {
   info "Default outgoing: allow"
   info "Allow: ${SSH_PORT}/tcp"
   info "Allow: ${APP_PORT}/tcp"
+  warning "Applying this policy resets existing UFW rules so only the mission ports remain."
   warning "Before enabling UFW over SSH, confirm that SSH is already listening on ${SSH_PORT}/tcp."
 }
 
 apply_policy() {
+  ufw --force reset
   ufw default deny incoming
   ufw default allow outgoing
   ufw allow "${SSH_PORT}/tcp"

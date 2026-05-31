@@ -31,8 +31,11 @@ find_agent_pid() {
   local pattern
 
   for pattern in "${PROCESS_PATTERNS[@]}"; do
-    if ps -eo pid=,args= | awk -v pattern="$pattern" -v self="$$" '
-      $1 != self && index($0, pattern) > 0 && $0 !~ /monitor[.]sh/ {
+    if ps -eo pid=,comm=,args= | awk -v pattern="$pattern" -v self="$$" '
+      $1 == self { next }
+      $2 ~ /^(awk|ps|sudo|bash|sh|zsh)$/ { next }
+      $0 ~ /monitor[.]sh/ { next }
+      index($0, pattern) > 0 {
         print $1
         found=1
         exit
@@ -58,6 +61,8 @@ check_firewall() {
   if command -v ufw >/dev/null 2>&1; then
     if ufw status 2>/dev/null | grep -qi '^Status: active'; then
       info "Firewall status: UFW active"
+    elif [ -r /etc/ufw/ufw.conf ] && grep -q '^ENABLED=yes' /etc/ufw/ufw.conf; then
+      info "Firewall status: UFW active"
     else
       warning "Firewall is inactive or UFW status is unavailable"
     fi
@@ -76,11 +81,20 @@ check_firewall() {
   warning "No supported firewall command found: ufw or firewall-cmd"
 }
 
-read_process_resource() {
-  local pid="$1"
-  local field="$2"
+trim_value() {
+  awk '{ gsub(/^[ \t]+|[ \t]+$/, "", $0); print $0 }'
+}
 
-  ps -p "$pid" -o "$field"= 2>/dev/null | awk '{ gsub(/^[ \t]+|[ \t]+$/, "", $0); print $0 }'
+read_process_resources() {
+  local pid="$1"
+
+  ps -p "$pid" -o pcpu= -o pmem= 2>/dev/null | awk 'NR == 1 && NF >= 2 { print $1, $2; exit }'
+}
+
+is_number() {
+  local value="$1"
+
+  awk -v value="$value" 'BEGIN { exit (value ~ /^[0-9]+([.][0-9]+)?$/) ? 0 : 1 }'
 }
 
 greater_than() {
@@ -95,6 +109,7 @@ main() {
   local cpu_usage
   local mem_usage
   local disk_used
+  local resource_values
   local timestamp
 
   printf '====== SYSTEM MONITOR RESULT ======\n\n'
@@ -114,12 +129,14 @@ main() {
 
   check_firewall
 
-  cpu_usage="$(read_process_resource "$pid" "%cpu")"
-  mem_usage="$(read_process_resource "$pid" "%mem")"
+  resource_values="$(read_process_resources "$pid" || true)"
+  cpu_usage="$(printf '%s\n' "$resource_values" | awk '{ print $1 }' | trim_value)"
+  mem_usage="$(printf '%s\n' "$resource_values" | awk '{ print $2 }' | trim_value)"
   disk_used="$(df -P / | awk 'NR == 2 { gsub(/%/, "", $5); print $5 }')"
 
-  if [ -z "$cpu_usage" ] || [ -z "$mem_usage" ] || [ -z "$disk_used" ]; then
+  if ! is_number "$cpu_usage" || ! is_number "$mem_usage" || ! is_number "$disk_used"; then
     error "Failed to collect resource usage"
+    error "Collected values: CPU='$cpu_usage' MEM='$mem_usage' DISK_USED='$disk_used'"
     exit 1
   fi
 

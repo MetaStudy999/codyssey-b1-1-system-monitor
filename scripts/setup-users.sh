@@ -3,7 +3,7 @@
 # B1-1 미션에서 필요한 Linux 사용자와 그룹을 생성하는 스크립트입니다.
 #
 # 실행 위치:
-#   - macOS 호스트가 아니라 OrbStack Ubuntu 24.04 VM codyssey-b1-1-ubuntu24에서 실행합니다.
+#   - macOS 호스트가 아니라 OrbStack Ubuntu 24.04 VM cds-ubuntu24에서 실행합니다.
 #   - 저장소 루트에서 다음처럼 실행하는 것을 기준으로 합니다.
 #       sudo bash scripts/setup-users.sh
 #
@@ -64,7 +64,7 @@ error() {
 # id -u 결과가 0이면 root이며, sudo로 실행한 경우도 이 조건을 만족합니다.
 require_root() {
   if [ "$(id -u)" -ne 0 ]; then
-    error "This script must be run with sudo or as root on codyssey-b1-1-ubuntu24."
+    error "This script must be run with sudo or as root on cds-ubuntu24."
     error "Example: sudo $0"
     exit 1
   fi

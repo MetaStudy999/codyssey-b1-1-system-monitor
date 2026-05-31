@@ -96,7 +96,7 @@ TODO: Boot Sequence 출력 붙여넣기
 
 ```bash
 sudo -u agent-admin /home/agent-admin/agent-app/bin/monitor.sh
-tail -n 5 /var/log/agent-app/monitor.log
+sudo tail -n 5 /var/log/agent-app/monitor.log
 ```
 
 결과:

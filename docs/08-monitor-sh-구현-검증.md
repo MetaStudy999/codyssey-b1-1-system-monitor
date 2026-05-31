@@ -38,7 +38,7 @@ sudo -u agent-admin "$AGENT_HOME/bin/monitor.sh"
 
 - `ps`: 앱 실행 파일 경로와 이름을 기준으로 프로세스를 찾는다.
 - `ss -tuln`: `15034` 포트 LISTEN 여부를 확인한다.
-- `ps -p PID -o %cpu,%mem`: 해당 PID의 CPU/MEM을 수집한다.
+- `ps -p PID -o %cpu=,%mem=`: 해당 PID의 CPU/MEM을 수집한다.
 - `df -P /`: 루트 파티션 디스크 사용률을 수집한다.
 - `>>`: 기존 로그 뒤에 새 줄을 누적한다.
 
@@ -60,7 +60,7 @@ DISK Used : ...
 
 ```bash
 ls -l "$AGENT_HOME/bin/monitor.sh"
-tail -n 5 /var/log/agent-app/monitor.log
+sudo tail -n 5 /var/log/agent-app/monitor.log
 ```
 
 ## README에 붙여넣을 증빙

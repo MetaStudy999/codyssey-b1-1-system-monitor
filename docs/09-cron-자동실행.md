@@ -12,7 +12,7 @@
 
 ```bash
 sudo -u agent-admin /home/agent-admin/agent-app/bin/monitor.sh
-tail -n 5 /var/log/agent-app/monitor.log
+sudo tail -n 5 /var/log/agent-app/monitor.log
 ```
 
 ## 실행 명령어
@@ -45,10 +45,10 @@ sudo crontab -u agent-admin -e
 
 ```bash
 sudo crontab -u agent-admin -l
-wc -l /var/log/agent-app/monitor.log
+sudo wc -l /var/log/agent-app/monitor.log
 sleep 70
-wc -l /var/log/agent-app/monitor.log
-tail -n 10 /var/log/agent-app/monitor.log
+sudo wc -l /var/log/agent-app/monitor.log
+sudo tail -n 10 /var/log/agent-app/monitor.log
 tail -n 10 /var/log/agent-app/cron.log
 ```
 

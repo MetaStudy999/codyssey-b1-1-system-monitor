@@ -11,7 +11,7 @@
 ## 사전 확인
 
 ```bash
-tail -n 5 /var/log/agent-app/monitor.log
+sudo tail -n 5 /var/log/agent-app/monitor.log
 ```
 
 ## 실행 명령어

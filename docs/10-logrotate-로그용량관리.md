@@ -37,6 +37,7 @@ sudo logrotate -d /etc/logrotate.d/agent-app-monitor
 
 - `size 10M`: 10MB 초과 시 rotate한다.
 - `rotate 10`: 최대 10개 보존한다.
+- `su agent-admin agent-core`: group-writable 로그 디렉터리에서도 지정한 사용자/그룹으로 안전하게 rotate한다.
 - `missingok`: 로그 파일이 없어도 오류로 보지 않는다.
 - `notifempty`: 빈 로그는 rotate하지 않는다.
 - `copytruncate`: 실행 중인 프로세스가 파일을 계속 잡고 있어도 안전하게 잘라낸다.
@@ -63,6 +64,7 @@ logrotate 설정 파일 내용과 dry run 결과 중 핵심 줄을 붙인다.
 
 - `logrotate: command not found`: `sudo apt install -y logrotate`
 - 설정 파일 권한 오류: `/etc/logrotate.d`는 root 권한이 필요하다.
+- `parent directory has insecure permissions`: 설정에 `su agent-admin agent-core`가 있는지 확인한다.
 - 강제 테스트가 필요한 경우: 실습용 환경에서만 `sudo logrotate -f /etc/logrotate.d/agent-app-monitor`를 사용한다.
 
 ## 다음 단계로 넘어가는 기준

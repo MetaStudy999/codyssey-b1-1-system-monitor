@@ -65,7 +65,9 @@ ss -tulnp | grep 15034
 ps -ef | grep '[a]gent-app'
 env | grep '^AGENT_'
 ss -tulnp | grep 15034 || true
-ls -l "$AGENT_KEY_PATH"
+ls -ld "$AGENT_KEY_PATH"
+ls -l "$AGENT_KEY_PATH/secret.key"
+ls -l "$AGENT_KEY_PATH/t_secret.key"
 ls -ld "$AGENT_LOG_DIR"
 ```
 
@@ -92,7 +94,105 @@ cd "$AGENT_HOME"
 
 ---
 
-## Case 3: cron에서는 실패하지만 직접 실행은 성공
+## Case 3: Key Path Mismatch
+
+### 1. 증상
+
+```text
+[2/5] Verifying Environment Variables     [FAIL]
+   >>> Key Path Mismatch. Expected: /home/agent-admin/agent-app/api_keys
+```
+
+### 2. 원인 가설
+
+`AGENT_KEY_PATH`가 키 디렉터리가 아니라 키 파일 전체 경로로 설정됐다.
+
+### 3. 확인 명령
+
+```bash
+sudo -iu agent-admin
+echo "$AGENT_KEY_PATH"
+ls -ld "$AGENT_KEY_PATH"
+ls -l "$AGENT_KEY_PATH/secret.key"
+ls -l "$AGENT_KEY_PATH/t_secret.key"
+```
+
+### 4. 실제 원인
+
+제공 앱은 `AGENT_KEY_PATH=/home/agent-admin/agent-app/api_keys`를 기대한다.
+
+### 5. 해결 방법
+
+```bash
+sudo -iu agent-admin
+sed -i 's#^export AGENT_KEY_PATH=.*#export AGENT_KEY_PATH=$AGENT_HOME/api_keys#' ~/.profile
+source ~/.profile
+echo "$AGENT_KEY_PATH"
+cat "$AGENT_KEY_PATH/secret.key"
+cat "$AGENT_KEY_PATH/t_secret.key"
+```
+
+### 6. 해결 결과
+
+- Before: Boot Sequence 2단계에서 `Key Path Mismatch`
+- After: 환경 변수 검증 단계 `[OK]`
+
+### 7. 재발 방지
+
+`AGENT_KEY_PATH`는 디렉터리 경로로 두고, 앱 실행용 키 파일은 `$AGENT_KEY_PATH/secret.key`로 확인한다.
+
+---
+
+## Case 4: Missing File secret.key
+
+### 1. 증상
+
+```text
+[3/5] Checking Required Files             [FAIL]
+   >>> Missing File: secret.key
+   >>>    (Expected location: /home/agent-admin/agent-app/api_keys/secret.key)
+```
+
+### 2. 원인 가설
+
+키 디렉터리는 맞지만 앱 실행용 키 파일명인 `secret.key`가 없다.
+
+### 3. 확인 명령
+
+```bash
+sudo -iu agent-admin
+echo "$AGENT_KEY_PATH"
+ls -ld "$AGENT_KEY_PATH"
+ls -l "$AGENT_KEY_PATH/secret.key"
+cat "$AGENT_KEY_PATH/secret.key"
+```
+
+### 4. 실제 원인
+
+미션 문서 기준의 `t_secret.key`만 만들고, 제공 앱이 실제로 검사하는 `secret.key`를 만들지 않았다.
+
+### 5. 해결 방법
+
+```bash
+sudo install -o agent-admin -g agent-core -m 0640 /dev/null /home/agent-admin/agent-app/api_keys/secret.key
+printf '%s\n' 'agent_api_key_test' | sudo tee /home/agent-admin/agent-app/api_keys/secret.key >/dev/null
+sudo chown agent-admin:agent-core /home/agent-admin/agent-app/api_keys/secret.key
+sudo chmod 640 /home/agent-admin/agent-app/api_keys/secret.key
+sudo -u agent-admin cat /home/agent-admin/agent-app/api_keys/secret.key
+```
+
+### 6. 해결 결과
+
+- Before: Boot Sequence 3단계에서 `Missing File: secret.key`
+- After: 필수 파일 검증 단계 `[OK]`
+
+### 7. 재발 방지
+
+`scripts/setup-dirs.sh`로 `secret.key`와 `t_secret.key`를 모두 생성한다.
+
+---
+
+## Case 5: cron에서는 실패하지만 직접 실행은 성공
 
 ### 1. 증상
 
@@ -143,7 +243,7 @@ cron 명령에는 절대 경로를 사용하고 stdout/stderr를 `cron.log`에 �
 
 ---
 
-## Case 4: monitor.log 권한 오류
+## Case 6: monitor.log 권한 오류
 
 ### 1. 증상
 
@@ -185,7 +285,92 @@ sudo chmod 2770 /var/log/agent-app
 
 ---
 
-## Case 5: GLIBC 오류
+## Case 7: monitor.sh 리소스 수집 실패
+
+### 1. 증상
+
+```text
+[ERROR] Failed to collect resource usage
+```
+
+### 2. 원인 가설
+
+`ps` 출력 필드명이 현재 Ubuntu 환경과 맞지 않거나, 운영 위치의 `monitor.sh`가 최신 버전이 아니다.
+
+### 3. 확인 명령
+
+```bash
+ps -p <PID> -o %cpu=,%mem=
+df -P /
+ls -l /home/agent-admin/agent-app/bin/monitor.sh
+```
+
+### 4. 실제 원인
+
+`ps -p "$PID" -o %cpu=,%mem=` 출력에서 첫 번째 필드는 CPU, 두 번째 필드는 MEM으로 파싱해야 한다.
+
+### 5. 해결 방법
+
+```bash
+cd ~/basic/b1-1
+sudo install -o agent-dev -g agent-core -m 0750 bin/monitor.sh /home/agent-admin/agent-app/bin/monitor.sh
+bash -n /home/agent-admin/agent-app/bin/monitor.sh
+sudo -u agent-admin /home/agent-admin/agent-app/bin/monitor.sh
+```
+
+### 6. 해결 결과
+
+- Before: 리소스 수집 실패
+- After: CPU/MEM/DISK_USED 출력 및 `monitor.log` 누적
+
+### 7. 재발 방지
+
+저장소의 `bin/monitor.sh`를 수정한 뒤에는 운영 위치인 `/home/agent-admin/agent-app/bin/monitor.sh`로 다시 복사한다.
+
+---
+
+## Case 8: monitor.log 읽기 Permission denied
+
+### 1. 증상
+
+```text
+tail: cannot open '/var/log/agent-app/monitor.log' for reading: Permission denied
+```
+
+### 2. 원인 가설
+
+현재 로그인 계정이 `agent-core` 그룹에 없어서 `/var/log/agent-app` 내부 로그를 읽을 수 없다.
+
+### 3. 확인 명령
+
+```bash
+id
+ls -ld /var/log/agent-app
+ls -l /var/log/agent-app/monitor.log
+```
+
+### 4. 실제 원인
+
+`/var/log/agent-app`는 미션 보안 정책에 따라 `agent-core` 그룹만 접근하도록 제한한다.
+
+### 5. 해결 방법
+
+```bash
+sudo tail -n 5 /var/log/agent-app/monitor.log
+```
+
+### 6. 해결 결과
+
+- Before: 일반 계정에서 로그 읽기 실패
+- After: `sudo tail`로 로그 증빙 확인
+
+### 7. 재발 방지
+
+검증 문서의 로그 확인 명령은 `sudo tail`, `sudo wc`로 작성한다.
+
+---
+
+## Case 9: GLIBC 오류
 
 ### 1. 증상
 

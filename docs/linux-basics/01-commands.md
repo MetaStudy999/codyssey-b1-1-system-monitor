@@ -266,7 +266,7 @@ curl http://localhost:15034
 파일의 마지막 부분을 출력한다.
 
 ```bash
-tail -n 5 /var/log/agent-app/monitor.log
+sudo tail -n 5 /var/log/agent-app/monitor.log
 ```
 
 - `-n`: `number`, 출력할 줄 수를 지정한다.
@@ -280,7 +280,7 @@ tail -n 5 /var/log/agent-app/monitor.log
 줄 수, 단어 수, 바이트 수를 계산한다.
 
 ```bash
-wc -l /var/log/agent-app/monitor.log
+sudo wc -l /var/log/agent-app/monitor.log
 ```
 
 - `-l`: `lines`, 줄 수만 출력한다.

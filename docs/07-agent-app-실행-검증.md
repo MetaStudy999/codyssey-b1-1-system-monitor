@@ -13,6 +13,7 @@
 ```bash
 sudo ls -l /home/agent-admin/agent-app/agent-app
 sudo -iu agent-admin env | grep '^AGENT_'
+sudo -u agent-admin cat /home/agent-admin/agent-app/api_keys/secret.key
 sudo -u agent-admin cat /home/agent-admin/agent-app/api_keys/t_secret.key
 ```
 
@@ -31,7 +32,7 @@ cd "$AGENT_HOME"
 ```bash
 ps -ef | grep '[a]gent-app'
 ss -tulnp | grep 15034
-curl http://localhost:15034
+curl -v --max-time 3 http://localhost:15034
 ```
 
 ## 명령어 설명
@@ -66,7 +67,7 @@ Agent READY
 ```bash
 ps -ef | grep '[a]gent-app'
 ss -tulnp | grep 15034
-curl http://localhost:15034
+curl -v --max-time 3 http://localhost:15034
 ```
 
 ## README에 붙여넣을 증빙
@@ -77,8 +78,9 @@ Boot Sequence 출력, `Agent READY`, `ss`, `curl` 결과를 붙인다.
 
 - `Running as root is forbidden`: `agent-admin` 계정으로 실행한다.
 - `Critical Env 'AGENT_HOME' is missing`: `agent-admin` 셸에서 환경 변수가 로드되지 않은 상태다. `source ~/.profile`을 실행하고 `env | grep '^AGENT_'`로 확인한 뒤 다시 실행한다.
+- `Missing File: secret.key`: `/home/agent-admin/agent-app/api_keys/secret.key`를 만들고 내용은 `agent_api_key_test`로 둔다.
 - `Port 15034 is not available`: 이미 같은 포트를 쓰는 프로세스를 확인한다.
-- `GLIBC_2.38 not found`: `codyssey-b1-1-ubuntu24`에서 `ldd --version`, `cat /etc/os-release`, `file "$AGENT_HOME/agent-app"`로 glibc와 바이너리 호환성을 확인한다.
+- `GLIBC_2.38 not found`: `cds-ubuntu24`에서 `ldd --version`, `cat /etc/os-release`, `sudo file "$AGENT_HOME/agent-app"`로 glibc와 바이너리 호환성을 확인한다.
 
 ## 다음 단계로 넘어가는 기준
 

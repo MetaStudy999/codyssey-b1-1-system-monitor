@@ -9,13 +9,13 @@
 | 필수 | agent 계정/그룹 | `scripts/setup-users.sh` | `id`, `getent group` | 준비 |
 | 필수 | 디렉터리 권한 | `scripts/setup-dirs.sh` | `ls -ld`, `getfacl` | 준비 |
 | 필수 | 환경 변수 | `docs/06-환경변수-키파일-설정.md` | `env \| grep '^AGENT_'` | 준비 |
-| 필수 | 키 파일 | `scripts/setup-dirs.sh` | `cat $AGENT_KEY_PATH` | 준비 |
+| 필수 | 키 파일 | `scripts/setup-dirs.sh` | `cat $AGENT_KEY_PATH/secret.key`, `cat $AGENT_KEY_PATH/t_secret.key` | 준비 |
 | 필수 | 앱 일반 계정 실행 | `docs/07-agent-app-실행-검증.md` | `ps`, `ss`, `curl` | 준비 |
 | 필수 | Boot Sequence 5단계 OK | `docs/07-agent-app-실행-검증.md` | 앱 실행 출력 | 준비 |
 | 필수 | Agent READY | `docs/07-agent-app-실행-검증.md` | 앱 실행 출력 | 준비 |
 | 필수 | 15034 LISTEN | `docs/07-agent-app-실행-검증.md` | `ss -tulnp \| grep 15034` | 준비 |
 | 필수 | monitor.sh | `bin/monitor.sh` | `bash -n`, 직접 실행 | 준비 |
-| 필수 | monitor.log append | `bin/monitor.sh` | `tail /var/log/agent-app/monitor.log` | 준비 |
+| 필수 | monitor.log append | `bin/monitor.sh` | `sudo tail /var/log/agent-app/monitor.log` | 준비 |
 | 필수 | cron 매분 실행 | `scripts/install-cron.sh` | `sudo crontab -u agent-admin -l` | 준비 |
 | 필수 | 10MB/10개 로그 관리 | `scripts/setup-logrotate.sh` | `sudo logrotate -d ...` | 준비 |
 | 보너스 | report.sh | `bin/report.sh` | `bash -n`, 직접 실행 | 준비 |
