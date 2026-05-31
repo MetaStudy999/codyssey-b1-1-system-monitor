@@ -4,6 +4,7 @@
 #
 # 실행 위치:
 #   - macOS 호스트가 아니라 OrbStack Ubuntu 24.04 VM cds-ubuntu24에서 실행합니다.
+#   - useradd, groupadd, usermod는 Linux 계정 DB를 수정하는 명령이므로 macOS에서 실행하지 않습니다.
 #   - 저장소 루트에서 다음처럼 실행하는 것을 기준으로 합니다.
 #       sudo bash scripts/setup-users.sh
 #
@@ -18,11 +19,14 @@
 #   - agent-common은 업로드 디렉토리처럼 세 계정이 함께 접근할 리소스에 사용합니다.
 #   - agent-core는 api_keys, /var/log/agent-app처럼 더 민감한 리소스에 사용합니다.
 #   - agent-test는 테스트 계정이므로 agent-core에 넣지 않아 민감 파일 접근을 제한합니다.
+#   - agent-admin은 앱 실행과 운영 확인에 사용하고, agent-dev는 스크립트 소유/수정 역할에 사용합니다.
+#   - 역할별 계정을 나누면 누가 어떤 리소스에 접근해야 하는지 평가자가 명확히 추적할 수 있습니다.
 #
 # idempotent(멱등)하게 작성했습니다.
 #   - 이미 존재하는 사용자/그룹은 다시 만들지 않습니다.
 #   - 이미 그룹에 포함된 사용자는 중복 추가하지 않습니다.
 #   - 따라서 실습 중 여러 번 실행해도 같은 최종 상태를 유지합니다.
+#   - 사용자 생성 실습은 반복 검증이 잦으므로 멱등성이 있으면 복구와 재실행이 쉬워집니다.
 
 # set -u:
 #   - 정의되지 않은 변수를 사용하면 즉시 오류로 처리합니다.
@@ -31,6 +35,10 @@ set -u
 
 # B1-1 미션에서 반드시 생성해야 하는 사용자 목록입니다.
 # Bash 배열을 사용하면 main 함수에서 반복문으로 같은 작업을 안전하게 적용할 수 있습니다.
+# 계정별 역할:
+#   - agent-admin: agent 앱 실행 계정, monitor.sh 실행 계정, cron 등록 계정
+#   - agent-dev: monitor.sh/report.sh 같은 운영 스크립트 소유자 역할
+#   - agent-test: upload_files 접근 확인용 테스트 계정
 AGENT_USERS=("agent-admin" "agent-dev" "agent-test")
 
 # 공통 작업용 그룹입니다.
