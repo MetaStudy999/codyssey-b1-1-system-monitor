@@ -178,6 +178,70 @@ grep -nE '^(find_agent_pid|check_port_listen|check_firewall|read_process_resourc
 4. `bin/monitor.sh`의 로그 포맷을 보고 `report.sh`가 파싱하기 쉬운 이유를 설명하라.
 5. 프로세스는 있는데 포트가 없는 상황에서 확인할 순서를 적어 보라.
 
+## 예시 답안
+
+### 1. 실패 exit code 확인
+
+```bash
+bash check-port.sh 1
+echo $?
+```
+
+1번 포트가 LISTEN 상태가 아니라면 `check-port.sh`는 `[ERROR]`를 출력하고 `exit 1`로 종료한다. 따라서 `echo $?` 결과는 보통 `1`이다.
+
+### 2. CPU 경고 조건 추가
+
+`resource-line.sh`에 다음 함수를 추가한다.
+
+```bash
+greater_than() {
+  local actual="$1"
+  local threshold="$2"
+
+  awk -v actual="$actual" -v threshold="$threshold" 'BEGIN { exit (actual > threshold) ? 0 : 1 }'
+}
+```
+
+CPU 값을 구한 뒤 다음 조건을 추가한다.
+
+```bash
+if greater_than "$CPU" "20"; then
+  echo "[WARNING] CPU threshold exceeded"
+fi
+```
+
+Bash의 기본 숫자 비교는 소수 비교에 약하므로 `awk`를 사용한다.
+
+### 3. append 로그 줄 수 확인
+
+```bash
+bash append-monitor-log.sh
+bash append-monitor-log.sh
+bash append-monitor-log.sh
+wc -l monitor.log
+tail -n 5 monitor.log
+```
+
+`>>`를 사용했기 때문에 실행할 때마다 줄이 누적된다.
+
+### 4. `report.sh`가 파싱하기 쉬운 이유
+
+`monitor.log`는 항상 다음처럼 일정한 key-value 형식으로 기록된다.
+
+```text
+[YYYY-MM-DD HH:MM:SS] PID:123 CPU:2.3% MEM:4.1% DISK_USED:37%
+```
+
+시간은 고정 길이로 추출할 수 있고, CPU/MEM/DISK_USED는 `CPU:`, `MEM:`, `DISK_USED:` 접두어로 찾을 수 있다. 그래서 `awk`가 필드를 순회하며 값을 안정적으로 파싱할 수 있다.
+
+### 5. 프로세스는 있는데 포트가 없는 경우 확인 순서
+
+1. `ps -ef | grep '[a]gent-app'`로 앱 프로세스가 어떤 명령으로 실행됐는지 확인한다.
+2. `ss -tulnp | grep 15034`로 앱 포트가 실제 LISTEN 상태인지 확인한다.
+3. 앱 실행 로그나 Boot Sequence 출력에서 실패 단계가 있었는지 확인한다.
+4. `AGENT_PORT`, `AGENT_KEY_PATH`, `AGENT_UPLOAD_DIR` 환경 변수가 맞는지 확인한다.
+5. 다른 프로세스가 포트를 이미 사용 중인지 `ss -tulnp` 전체 출력으로 확인한다.
+
 ## 통과 기준
 
 - `ps`, `pgrep`, `ss`, `df`, `date`를 관제 목적에 맞게 사용할 수 있다.

@@ -134,6 +134,57 @@ sed -n '1,80p' bin/monitor.sh
 3. `bash -n`과 `bash script.sh`의 차이를 한 문장으로 설명하라.
 4. `chmod 755 hello.sh`에서 `755`가 의미하는 권한을 설명하라.
 
+## 예시 답안
+
+### 1. `my-info.sh`
+
+```bash
+#!/usr/bin/env bash
+
+echo "Current user: $(whoami)"
+echo "Current directory: $(pwd)"
+echo "Today: $(date '+%Y-%m-%d')"
+```
+
+검증:
+
+```bash
+bash -n my-info.sh
+bash my-info.sh
+```
+
+### 2. `APP_NAME` 기본값 출력
+
+```bash
+#!/usr/bin/env bash
+
+APP_NAME="${APP_NAME:-agent-app}"
+echo "App name: $APP_NAME"
+```
+
+확인:
+
+```bash
+bash app-name.sh
+APP_NAME=my-agent bash app-name.sh
+```
+
+첫 번째 실행은 `agent-app`, 두 번째 실행은 `my-agent`를 출력한다.
+
+### 3. `bash -n`과 `bash script.sh` 차이
+
+`bash -n script.sh`는 스크립트를 실제 실행하지 않고 Bash 문법만 검사하고, `bash script.sh`는 스크립트 안의 명령을 실제로 실행한다.
+
+### 4. `chmod 755 hello.sh` 의미
+
+`755`는 소유자 `7`, 그룹 `5`, others `5` 권한을 뜻한다.
+
+| 대상 | 숫자 | 권한 |
+|---|---:|---|
+| 소유자 | 7 | 읽기, 쓰기, 실행 |
+| 그룹 | 5 | 읽기, 실행 |
+| others | 5 | 읽기, 실행 |
+
 ## 통과 기준
 
 - `hello.sh`와 `env-summary.sh`를 실행할 수 있다.

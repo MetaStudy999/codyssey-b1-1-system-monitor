@@ -134,6 +134,49 @@ find /tmp/agent-archive-test -type f -name '*.gz' -ls
 4. `cron`에서 절대 경로를 쓰는 이유를 설명하라.
 5. logrotate와 `archive-old-logs.sh`의 역할 차이를 설명하라.
 
+## 예시 답안
+
+### 1. CPU `20.5%` 샘플 추가
+
+```bash
+printf '[2026-05-31 10:03:00] PID:100 CPU:20.5%% MEM:7.0%% DISK_USED:33%%\n' >>/tmp/sample-monitor.log
+LOG_FILE=/tmp/sample-monitor.log bash bin/report.sh
+```
+
+기존 CPU 값이 `1.0`, `3.0`, `5.0`이었다면 새 평균은 `(1.0 + 3.0 + 5.0 + 20.5) / 4 = 7.38%`로 출력된다.
+
+### 2. `--from`과 `--to` 차이
+
+```bash
+LOG_FILE=/tmp/sample-monitor.log bash bin/report.sh --from "2026-05-31 10:01:00"
+LOG_FILE=/tmp/sample-monitor.log bash bin/report.sh --to "2026-05-31 10:01:00"
+```
+
+`--from`만 지정하면 해당 시간 이후의 로그를 분석하고, `--to`만 지정하면 해당 시간 이전의 로그를 분석한다. 둘을 함께 쓰면 시작 시간과 종료 시간 사이의 로그만 분석한다.
+
+### 3. `COMPRESS_DAYS=1` 테스트
+
+```bash
+mkdir -p /tmp/agent-log-test /tmp/agent-archive-test
+printf 'old log\n' >/tmp/agent-log-test/old.log
+touch -d '1 day ago' /tmp/agent-log-test/old.log
+AGENT_LOG_DIR=/tmp/agent-log-test ARCHIVE_DIR=/tmp/agent-archive-test COMPRESS_DAYS=1 bash scripts/archive-old-logs.sh
+find /tmp/agent-archive-test -type f -name '*.gz' -ls
+```
+
+환경 변수로 경로와 보존 기준을 바꿀 수 있으므로 실제 `/var/log`를 건드리지 않고 안전하게 테스트할 수 있다.
+
+### 4. cron에서 절대 경로를 쓰는 이유
+
+cron은 일반 터미널과 작업 디렉터리, PATH, 환경 변수가 다를 수 있다. 그래서 `monitor.sh`처럼 운영에 필요한 스크립트는 `/home/agent-admin/agent-app/bin/monitor.sh` 같은 절대 경로로 등록해야 실행 위치가 바뀌어도 안정적으로 동작한다.
+
+### 5. logrotate와 `archive-old-logs.sh` 차이
+
+| 구분 | 역할 |
+|---|---|
+| logrotate | 로그 파일 크기와 보관 개수를 관리한다. B1-1에서는 `10MB / 10개` 정책을 담당한다. |
+| `archive-old-logs.sh` | 오래된 로그를 시간 기준으로 압축해 별도 아카이브 디렉터리에 옮기고, 30일 이상 지난 압축 파일을 삭제한다. |
+
 ## 통과 기준
 
 - cron 한 줄의 다섯 별 의미를 설명할 수 있다.

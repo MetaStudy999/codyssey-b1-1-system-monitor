@@ -155,6 +155,75 @@ grep -E '^(require_root|ensure_group|ensure_user|ensure_membership|main)[(]' scr
 4. `scripts/setup-dirs.sh`에서 `install -d`를 사용하는 이유를 설명하라.
 5. 멱등성이 없는 스크립트가 운영에서 위험한 이유를 예시와 함께 설명하라.
 
+## 예시 답안
+
+### 1, 2. `ensure-dir.sh`
+
+```bash
+#!/usr/bin/env bash
+
+set -u
+
+info() {
+  printf '[INFO] %s\n' "$*"
+}
+
+error() {
+  printf '[ERROR] %s\n' "$*" >&2
+}
+
+TARGET_DIR="${1:-./sample-dir}"
+
+if [ -d "$TARGET_DIR" ]; then
+  info "Directory already exists: $TARGET_DIR"
+else
+  if mkdir -p "$TARGET_DIR"; then
+    info "Created directory: $TARGET_DIR"
+  else
+    error "Failed to create directory: $TARGET_DIR"
+    exit 1
+  fi
+fi
+```
+
+검증:
+
+```bash
+bash -n ensure-dir.sh
+bash ensure-dir.sh
+bash ensure-dir.sh
+```
+
+두 번 실행해도 최종 상태가 같으므로 멱등성을 가진다.
+
+### 3. 배열 반복
+
+```bash
+#!/usr/bin/env bash
+
+set -u
+
+DIRS=("upload_files" "api_keys" "bin")
+
+for dir_name in "${DIRS[@]}"; do
+  echo "Need directory: $dir_name"
+done
+```
+
+### 4. `install -d`를 사용하는 이유
+
+`install -d`는 디렉터리를 만들면서 소유자, 그룹, 권한을 한 번에 지정할 수 있다. 이미 디렉터리가 있어도 원하는 권한 상태로 맞추기 쉬워서 `setup-dirs.sh`처럼 반복 실행 가능한 운영 스크립트에 적합하다.
+
+예:
+
+```bash
+install -d -o agent-admin -g agent-core -m 0750 "$AGENT_HOME"
+```
+
+### 5. 멱등성이 없는 스크립트의 위험
+
+멱등성이 없으면 스크립트를 다시 실행할 때 계정이 중복 생성되거나, 기존 키 파일이 덮어써지거나, 같은 cron 항목이 여러 번 등록될 수 있다. 운영에서는 재실행과 복구가 자주 필요하므로 같은 명령을 여러 번 실행해도 최종 상태가 안정적으로 유지되어야 한다.
+
 ## 통과 기준
 
 - 함수, 조건문, 반복문을 직접 작성할 수 있다.
