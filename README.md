@@ -47,8 +47,8 @@
 6. `docs/06-환경변수-키파일-설정.md`
 7. `docs/07-agent-app-실행-검증.md`
 8. `docs/08-monitor-sh-구현-검증.md`
-9. `docs/09-cron-자동실행.md`
-10. `docs/10-logrotate-로그용량관리.md`
+9. `docs/10-logrotate-로그용량관리.md`
+10. `docs/09-cron-자동실행.md`
 11. `docs/11-보너스-report-sh.md`
 12. `docs/12-보너스-로그-아카이브.md`
 13. `docs/13-전체-검증-체크리스트.md`
@@ -284,10 +284,10 @@ sudo -u agent-admin test -x "$AGENT_HOME/agent-app"
 [qemu-arm64]: Could not open '/lib/ld-linux-aarch64.so.1': No such file or directory
 ```
 
-예를 들어 `uname -m`이 `x86_64`인데 위 오류가 발생하면 ARM64 파일이 복사된 상태일 가능성이 높다. 이 경우 x86 파일로 다시 복사한다.
+예를 들어 `uname -m`이 `x86_64`인데 위 오류가 발생하면 ARM64 파일이 복사된 상태일 가능성이 높다. 이 경우 저장소 루트로 이동한 뒤 x86 파일로 다시 복사한다.
 
 ```bash
-cd ~/basic/b1-1
+# 예: cd /path/to/codyssey-b1-1-system-monitor
 unzip -o agent-app.zip -d /tmp/agent-app-extract
 export AGENT_HOME=/home/agent-admin/agent-app
 
@@ -385,7 +385,7 @@ Status: active
 
 ## 14. 환경변수 설정
 
-`agent-admin` 계정으로 설정한다.
+`agent-admin` 계정으로 설정한다. 확인까지 마친 뒤에는 `exit`로 원래 sudo 가능한 관리자 터미널로 돌아온다. 이후 `sudo cp`, `systemctl`, `ufw`, `cron` 같은 명령은 원래 관리자 터미널에서 실행한다.
 
 ```bash
 sudo -iu agent-admin
@@ -397,13 +397,15 @@ export AGENT_KEY_PATH=$AGENT_HOME/api_keys
 export AGENT_LOG_DIR=/var/log/agent-app
 EOF
 source ~/.profile
+exit
 ```
 
-제공 앱은 `AGENT_KEY_PATH`를 키 파일 전체 경로가 아니라 `api_keys` 디렉터리 경로로 검사한다. 실제 앱 실행에는 `$AGENT_KEY_PATH/secret.key`가 필요하다. 미션 문서의 키 파일명인 `$AGENT_KEY_PATH/t_secret.key`도 같은 내용으로 함께 둔다.
+미션 원문에는 `AGENT_KEY_PATH=$AGENT_HOME/api_keys/t_secret.key`처럼 키 파일 전체 경로가 적혀 있다. 하지만 실제 제공 앱의 Boot Sequence는 `AGENT_KEY_PATH`가 키 파일 전체 경로가 아니라 `api_keys` 디렉터리 경로인지 검사한다. 따라서 실행 환경 변수는 `AGENT_KEY_PATH=$AGENT_HOME/api_keys`로 설정하고, 평가 원문 호환을 위해 `t_secret.key`도 같은 내용으로 함께 둔다.
 
 확인:
 
 ```bash
+sudo -iu agent-admin
 echo "$AGENT_HOME"
 echo "$AGENT_PORT"
 echo "$AGENT_UPLOAD_DIR"
@@ -411,6 +413,7 @@ echo "$AGENT_KEY_PATH"
 echo "$AGENT_LOG_DIR"
 cat "$AGENT_KEY_PATH/secret.key"
 cat "$AGENT_KEY_PATH/t_secret.key"
+exit
 ```
 
 ## 15. 키 파일 생성
@@ -435,8 +438,8 @@ agent_api_key_test
 ```bash
 sudo -u agent-admin cat /home/agent-admin/agent-app/api_keys/secret.key
 sudo -u agent-admin cat /home/agent-admin/agent-app/api_keys/t_secret.key
-ls -l /home/agent-admin/agent-app/api_keys/secret.key
-ls -l /home/agent-admin/agent-app/api_keys/t_secret.key
+sudo ls -l /home/agent-admin/agent-app/api_keys/secret.key
+sudo ls -l /home/agent-admin/agent-app/api_keys/t_secret.key
 ```
 
 `./agent-app` 실행 중 다음 오류가 나오면 `AGENT_KEY_PATH`가 파일 경로로 설정된 상태다.
@@ -455,6 +458,7 @@ source ~/.profile
 echo "$AGENT_KEY_PATH"
 cat "$AGENT_KEY_PATH/secret.key"
 cat "$AGENT_KEY_PATH/t_secret.key"
+exit
 ```
 
 `./agent-app` 실행 중 다음 오류가 나오면 앱이 요구하는 `secret.key`가 없는 상태다.
@@ -484,6 +488,8 @@ sudo -iu agent-admin
 cd "$AGENT_HOME"
 ./agent-app
 ```
+
+이 터미널은 앱 실행 상태로 유지한다. 이후 포트 확인, `monitor.sh` 복사, logrotate, cron 등록은 다른 `cds-ubuntu24` 터미널에서 저장소 루트로 이동한 뒤 진행한다.
 
 ## 17. Boot Sequence 확인
 
@@ -521,7 +527,7 @@ curl 출력에 Connected to localhost 또는 Connected to 127.0.0.1 표시
 
 ## 19. monitor.sh 실행
 
-저장소 스크립트를 운영 위치로 복사한다.
+다른 관리자 터미널에서 저장소 루트로 이동한 뒤, 저장소 스크립트를 운영 위치로 복사한다.
 
 ```bash
 export AGENT_HOME=/home/agent-admin/agent-app
@@ -567,6 +573,8 @@ sudo tail -n 5 /var/log/agent-app/monitor.log
 
 ## 21. logrotate 설정
 
+cron을 등록하기 전에 logrotate를 먼저 설정한다. 그래야 cron이 매분 로그를 쌓기 시작해도 `monitor.log`가 10MB를 넘을 때 10개까지만 보존되는 정책이 이미 준비되어 있다.
+
 ```bash
 sudo bash scripts/setup-logrotate.sh
 ```
@@ -594,6 +602,8 @@ copytruncate
 ## 22. cron 등록
 
 ```bash
+sudo systemctl enable --now cron
+sudo systemctl status cron --no-pager
 sudo bash scripts/install-cron.sh
 ```
 

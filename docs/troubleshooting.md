@@ -312,7 +312,7 @@ ls -l /home/agent-admin/agent-app/bin/monitor.sh
 ### 5. 해결 방법
 
 ```bash
-cd ~/basic/b1-1
+# 저장소 루트에서 실행한다. 예: cd /path/to/codyssey-b1-1-system-monitor
 sudo install -o agent-dev -g agent-core -m 0750 bin/monitor.sh /home/agent-admin/agent-app/bin/monitor.sh
 bash -n /home/agent-admin/agent-app/bin/monitor.sh
 sudo -u agent-admin /home/agent-admin/agent-app/bin/monitor.sh

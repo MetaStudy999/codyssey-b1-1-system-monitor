@@ -17,6 +17,13 @@ sudo tail -n 5 /var/log/agent-app/monitor.log
 
 ## 실행 명령어
 
+cron 데몬이 실행 중인지 먼저 확인한다.
+
+```bash
+sudo systemctl enable --now cron
+sudo systemctl status cron --no-pager
+```
+
 ```bash
 sudo bash scripts/install-cron.sh
 ```
@@ -36,6 +43,7 @@ sudo crontab -u agent-admin -e
 - `* * * * *`: 매분 실행한다.
 - `>> /var/log/agent-app/cron.log`: cron 실행 출력도 누적한다.
 - `2>&1`: 에러 출력도 같은 로그에 남긴다.
+- `systemctl enable --now cron`: cron 서비스를 지금 시작하고 재부팅 후에도 자동 시작되게 한다.
 
 ## 기대 결과
 

@@ -145,24 +145,7 @@ CPU/MEM/DISK 출력
 monitor.log에 지정 포맷 append
 ```
 
-## 9. cron 확인
-
-```bash
-sudo crontab -u agent-admin -l
-sudo wc -l /var/log/agent-app/monitor.log
-sleep 70
-sudo wc -l /var/log/agent-app/monitor.log
-tail -n 10 /var/log/agent-app/cron.log
-```
-
-기대 결과:
-
-```text
-매분 실행 항목 존재
-1분 뒤 monitor.log 라인 수 증가
-```
-
-## 10. logrotate 확인
+## 9. logrotate 확인
 
 ```bash
 sudo cat /etc/logrotate.d/agent-app-monitor
@@ -178,6 +161,25 @@ su agent-admin agent-core
 missingok
 notifempty
 copytruncate
+```
+
+## 10. cron 확인
+
+```bash
+sudo systemctl status cron --no-pager
+sudo crontab -u agent-admin -l
+sudo wc -l /var/log/agent-app/monitor.log
+sleep 70
+sudo wc -l /var/log/agent-app/monitor.log
+tail -n 10 /var/log/agent-app/cron.log
+```
+
+기대 결과:
+
+```text
+cron active
+매분 실행 항목 존재
+1분 뒤 monitor.log 라인 수 증가
 ```
 
 ## 11. 보너스 report.sh 확인

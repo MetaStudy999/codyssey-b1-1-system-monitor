@@ -87,7 +87,7 @@ exit
 `codyssey-b1-1-ubuntu24`의 프로젝트 복사본 또는 공유 폴더에서 실행한다.
 
 ```bash
-unzip agent-app.zip -d /tmp/agent-app-extract
+unzip -o agent-app.zip -d /tmp/agent-app-extract
 ls -la /tmp/agent-app-extract
 ```
 
